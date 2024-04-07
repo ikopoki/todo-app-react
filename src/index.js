@@ -8,16 +8,27 @@ import Footer from './ components/footer'
 import '../src/index.css'
 export default class App extends Component {
 
+  maxId = () => Math.random().toString(36).slice(2)
+
   state = {
     todoData: [
-      {label: 'Completed task', className: 'completed', id: 1},
-      {label: 'Editing task', className: 'editing', id: 2},
-      {label: "Active task", id: 3}
+      this.createTodoItem('Completed task'),
+      this.createTodoItem('Editing task'),
+      this.createTodoItem('Active task')
     ]
+  }
+
+  createTodoItem(label) {
+    return {
+      label,
+      done: false,
+      id: this.maxId()
+    }
   }
 
   deleteItem = (id) => {
     this.setState(({todoData}) => {
+      // eslint-disable-next-line eqeqeq
       const idx = todoData.findIndex((el) => el.id == id)
 
       const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)]
@@ -28,13 +39,40 @@ export default class App extends Component {
     })
   }
 
+  onToggleDone = (id) => {
+    this.setState(({ todoData }) => {
+      // eslint-disable-next-line eqeqeq
+      const idx = todoData.findIndex((el) => el.id == id)
+
+      const oldItem = todoData[idx]
+      const newItem = {...oldItem, done: !oldItem.done}
+
+      const newArray = todoData.toSpliced(idx, 1, newItem)
+
+      return {
+        todoData: newArray
+      }
+
+    })
+  }
+
   render () {
+    
+    const doneCount = this.state.todoData.filter((el) => el.done).length
+    const todoCount = this.state.todoData.length - doneCount
+
     return (
       <div>
         <AppHeader />
         <NewTaskForm />
-        <TaskList todos={this.state.todoData} onDeleted={ this.deleteItem }/>
-        <Footer />
+        <TaskList 
+          todos={ this.state.todoData } 
+          onDeleted={ this.deleteItem }
+          onToggleDone={ this.onToggleDone }
+        />
+        <Footer 
+          toDo={todoCount}
+        />
       </div>
     )
   }
