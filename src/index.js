@@ -39,6 +39,25 @@ export default class App extends Component {
     })
   }
 
+  addItem = (text) => {
+    const newItem = {
+      label: text,
+      done: false,
+      id: this.maxId()
+    }
+
+    this.setState(({todoData}) => {
+      const newArray =[
+        ...todoData,
+      newItem
+      ]
+
+      return {
+        todoData: newArray
+      }
+    })
+  }
+
   onToggleDone = (id) => {
     this.setState(({ todoData }) => {
       // eslint-disable-next-line eqeqeq
@@ -64,7 +83,7 @@ export default class App extends Component {
     return (
       <div>
         <AppHeader />
-        <NewTaskForm />
+        <NewTaskForm onItemAdded={this.addItem}/>
         <TaskList 
           todos={ this.state.todoData } 
           onDeleted={ this.deleteItem }
@@ -83,3 +102,5 @@ export default class App extends Component {
 const rootHTML = document.getElementById('root')
 const root = createRoot(rootHTML)
 root.render(<App />)
+
+///Users/admin/Documents/GitHub/todo-app-react/src/ components/app-header
