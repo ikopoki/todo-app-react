@@ -1,21 +1,42 @@
-import { Component } from 'react'
-import './tasks-filter.css'
+import { Component } from 'react';
+import './tasks-filter.css';
 
 export default class TaskFilter extends Component {
+  state = {
+    selectedTab: 'all',
+  };
 
-    render() {
-        return (
-            <ul className="filters">
-                <li>
-                    <button className="selected">All</button>
-                </li>
-                <li>
-                    <button>Active</button>
-                </li>
-                <li>
-                    <button>Completed</button>
-                </li>
-            </ul>   
-        )
-    }
+  handleTabClick = (tab) => {
+    this.setState({
+      selectedTab: tab,
+    });
+    this.props.onFilterChange(tab);
+  };
+
+  render() {
+    const { selectedTab } = this.state;
+
+    return (
+      <ul className="filters">
+        <li>
+          <button className={selectedTab === 'all' ? 'selected' : ''} onClick={() => this.handleTabClick('all')}>
+            All
+          </button>
+        </li>
+        <li>
+          <button className={selectedTab === 'active' ? 'selected' : ''} onClick={() => this.handleTabClick('active')}>
+            Active
+          </button>
+        </li>
+        <li>
+          <button
+            className={selectedTab === 'completed' ? 'selected' : ''}
+            onClick={() => this.handleTabClick('completed')}
+          >
+            Completed
+          </button>
+        </li>
+      </ul>
+    );
+  }
 }

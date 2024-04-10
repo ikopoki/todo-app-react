@@ -1,9 +1,13 @@
 const AppHeader = () => {
-    return (
-        <header>
-            <h1>todos</h1>
-        </header>
-    )
-}
+  const easter = () => {
+    throw new Error('My name is easter egg');
+  };
 
-export default AppHeader
+  return (
+    <header>
+      <h1 onClick={easter}>todos</h1>
+    </header>
+  );
+};
+
+export default AppHeader;
