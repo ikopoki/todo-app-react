@@ -8,9 +8,8 @@ import TaskList from './ components/task-List';
 import Footer from './ components/footer';
 import '../src/index.css';
 export default class App extends Component {
-  maxId = () => {
-    Math.random().toString(36).slice(2);
-  };
+
+  maxId = () => Math.random().toString(36).slice(2);
 
   state = {
     todoData: [
@@ -32,7 +31,7 @@ export default class App extends Component {
 
   deleteItem = (id) => {
     this.setState(({ todoData }) => {
-      // eslint-disable-next-line eqeqeq
+      // eslint-disable-next-line
       const idx = todoData.findIndex((el) => el.id == id);
 
       const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
