@@ -13,12 +13,16 @@ export default class App extends Component {
 
   state = {
     todoData: [
-      this.createTodoItem('Completed task'),
-      this.createTodoItem('Editing task'),
-      this.createTodoItem('Active task'),
     ],
     filteredTasks: [],
+    initialized: false,
   };
+
+  componentDidMount() {
+    if (!this.state.initialized) {
+      this.setState({ initialized: true });
+    }
+  }
 
   createTodoItem(label) {
     return {
@@ -55,31 +59,23 @@ export default class App extends Component {
         todoData: newArray,
       };
     });
+    setTimeout(() => {
+      this.onFilterChange();
+    }, 100);
   };
 
   onFilterChange = (tab) => {
     if (tab === 'completed') {
-      this.setState(({ filteredTasks }) => {
-        const newArray = this.state.todoData.filter((task) => task.done);
-
-        return {
-          filteredTasks: newArray,
-        };
+      this.setState({
+          filteredTasks: this.state.todoData.filter((task) => task.done),
       });
     } else if (tab === 'active') {
-      this.setState(({ filteredTasks }) => {
-        const newArray = this.state.todoData.filter((task) => !task.done);
-
-        return {
-          filteredTasks: newArray,
-        };
+      this.setState({
+          filteredTasks: this.state.todoData.filter((task) => !task.done),
       });
     } else {
-      this.setState(({ filteredTasks }) => {
-        const copy = [...this.state.todoData];
-        return {
-          filteredTasks: copy,
-        };
+      this.setState({
+        filteredTasks: this.state.todoData,
       });
     }
   };
@@ -115,16 +111,22 @@ export default class App extends Component {
         todoData: newArray,
       };
     });
+    setTimeout(() => {
+      this.onFilterChange();
+    }, 100);
   };
-
+  
   render() {
     const doneCount = this.state.todoData.filter((el) => el.done).length;
-    const todoCount = this.state.todoData.length - doneCount;
-
+    const todoCount = this.state.todoData.length - doneCount
+    
     return (
       <div>
         <AppHeader />
-        <NewTaskForm onItemAdded={this.addItem} />
+        <NewTaskForm 
+          onItemAdded={this.addItem} 
+          onFilterChange={this.onFilterChange}
+        />
         <TaskList
           filters={this.state.filteredTasks}
           todos={this.state.todoData}

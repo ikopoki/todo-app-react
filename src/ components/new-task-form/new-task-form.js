@@ -6,6 +6,7 @@ export default class NewTaskForm extends Component {
   };
 
   onLabelChange = (e) => {
+    this.props.onFilterChange()
     this.setState({
       label: e.target.value,
     });
@@ -17,8 +18,12 @@ export default class NewTaskForm extends Component {
     this.setState({
       label: '',
     });
-  };
 
+    setTimeout(() => {
+      this.props.onFilterChange();
+    }, 100);
+  };
+  
   render() {
     return (
       <form onSubmit={this.onSubmit}>
