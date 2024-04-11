@@ -14,6 +14,10 @@ export default class NewTaskForm extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
+    if (this.state.label.trim() === '') {
+      console.error('Пустое поле, иди нахуй')
+      return;
+    }
     this.props.onItemAdded(this.state.label);
     this.setState({
       label: '',

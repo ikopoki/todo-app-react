@@ -44,6 +44,9 @@ export default class App extends Component {
         todoData: newArray,
       };
     });
+    setTimeout(() => {
+      this.onFilterChange();
+    }, 100);
   };
 
   deleteAllItem = () => {
