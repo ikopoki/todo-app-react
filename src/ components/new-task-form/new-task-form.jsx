@@ -1,44 +1,50 @@
-import { Component } from 'react';
-import './new-task-form.css';
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
+import { Component } from 'react'
+import './new-task-form.css'
+
 export default class NewTaskForm extends Component {
-  state = {
-    label: '',
-  };
+  constructor(props) {
+    super(props)
+    this.state = {
+      label: '',
+    }
+  }
 
   onLabelChange = (e) => {
     this.props.onFilterChange()
     this.setState({
       label: e.target.value,
-    });
-  };
+    })
+  }
 
   onSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (this.state.label.trim() === '') {
+      // eslint-disable-next-line no-console
       console.error('Пустое поле, иди нахуй')
-      return;
+      return
     }
-    this.props.onItemAdded(this.state.label);
+    this.props.onItemAdded(this.state.label)
     this.setState({
       label: '',
-    });
+    })
 
     setTimeout(() => {
-      this.props.onFilterChange();
-    }, 100);
-  };
-  
+      this.props.onFilterChange()
+    }, 100)
+  }
+
   render() {
     return (
       <form onSubmit={this.onSubmit}>
         <input
           className="new-todo"
           placeholder="What needs to be done?"
-          autoFocus
           onChange={this.onLabelChange}
           value={this.state.label}
-        ></input>
+        />
       </form>
-    );
+    )
   }
 }
