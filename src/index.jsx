@@ -28,6 +28,7 @@ export default class App extends Component {
     }
   }
 
+  // eslint-disable-next-line react/sort-comp
   maxId = () => Math.random().toString(36).slice(2)
 
   deleteItem = (id) => {
