@@ -4,23 +4,13 @@ import { Component } from 'react'
 import './tasks-filter.css'
 
 export default class TaskFilter extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedTab: 'all',
-    }
-  }
-
   handleTabClick = (tab) => {
-    this.setState({
-      selectedTab: tab,
-    })
     this.props.onFilterChange(tab)
   }
 
   render() {
-    const { selectedTab } = this.state
-
+    // const { selectedTab2 } = this.state
+    const { selectedTab } = this.props
     return (
       <ul className="filters">
         <li>

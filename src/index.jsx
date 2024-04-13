@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/destructuring-assignment */
@@ -19,6 +20,7 @@ export default class App extends Component {
       todoData: [],
       filteredTasks: [],
       initialized: false,
+      selectedTab: 'all',
     }
   }
 
@@ -43,7 +45,7 @@ export default class App extends Component {
       }
     })
     setTimeout(() => {
-      this.onFilterChange()
+      this.onFilterChange(this.state.selectedTab)
     }, 100)
   }
 
@@ -61,23 +63,31 @@ export default class App extends Component {
       }
     })
     setTimeout(() => {
-      this.onFilterChange()
+      this.onFilterChange(this.state.selectedTab)
     }, 100)
   }
 
   onFilterChange = (tab) => {
-    if (tab === 'completed') {
-      this.setState({
-        filteredTasks: this.state.todoData.filter((task) => task.done),
-      })
-    } else if (tab === 'active') {
-      this.setState({
-        filteredTasks: this.state.todoData.filter((task) => !task.done),
-      })
-    } else {
-      this.setState({
-        filteredTasks: this.state.todoData,
-      })
+    this.setState({
+      selectedTab: tab,
+    })
+    switch (tab) {
+      case 'completed':
+        this.setState({
+          filteredTasks: this.state.todoData.filter((task) => task.done),
+        })
+        break
+      case 'active':
+        this.setState({
+          filteredTasks: this.state.todoData.filter((task) => !task.done),
+        })
+        break
+
+      default:
+        this.setState({
+          filteredTasks: this.state.todoData,
+        })
+        break
     }
   }
 
@@ -113,16 +123,15 @@ export default class App extends Component {
       }
     })
     setTimeout(() => {
-      this.onFilterChange()
+      this.onFilterChange(this.state.selectedTab)
     }, 100)
   }
 
   render() {
     const doneCount = this.state.todoData.filter((el) => el.done).length
     const todoCount = this.state.todoData.length - doneCount
-
     return (
-      <div>
+      <>
         <AppHeader />
         <NewTaskForm onItemAdded={this.addItem} onFilterChange={this.onFilterChange} />
         <TaskList
@@ -132,12 +141,13 @@ export default class App extends Component {
           onToggleDone={this.onToggleDone}
         />
         <Footer
+          tab={this.state.selectedTab}
           todos={this.state.todoData}
           onDeletedAll={this.deleteAllItem}
           toDo={todoCount}
           onFilterChange={this.onFilterChange}
         />
-      </div>
+      </>
     )
   }
 }

@@ -24,8 +24,6 @@ export default class Task extends Component {
   handleEnterPress = (e) => {
     if (e.key === 'Enter') {
       this.setState({ isEditing: false })
-      // В этом месте вы можете выполнить логику для сохранения нового значения описания
-      // Например, передать его обработчику для сохранения изменений
     }
   }
 
@@ -35,21 +33,9 @@ export default class Task extends Component {
 
     const timeAgo = formatDistanceToNow(new Date(created), { addSuffix: true })
 
-    let classNames
-
-    if (done) {
-      classNames = 'completed'
-    }
-
-    if (!done) {
-      classNames = 'active'
-    }
-
-    if (isEditing) {
-      classNames = 'editing'
-    }
     return (
-      <li className={classNames}>
+      // eslint-disable-next-line no-nested-ternary
+      <li className={done ? 'completed' : isEditing ? 'editing' : 'active'}>
         <div className="view">
           <input className="toggle" type="checkbox" onClick={onToggleDone} />
           <label>
