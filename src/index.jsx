@@ -43,9 +43,6 @@ export default class App extends Component {
         todoData: newArray,
       }
     })
-    setTimeout(() => {
-      this.onFilterChange(this.state.selectedTab)
-    }, 100)
   }
 
   deleteAllItem = () => {
@@ -61,9 +58,6 @@ export default class App extends Component {
         todoData: newArray,
       }
     })
-    setTimeout(() => {
-      this.onFilterChange(this.state.selectedTab)
-    }, 100)
   }
 
   onFilterChange = (tab) => {
@@ -103,9 +97,6 @@ export default class App extends Component {
         todoData: newArray,
       }
     })
-    setTimeout(() => {
-      this.onFilterChange(this.state.selectedTab)
-    }, 100)
   }
 
   render() {

@@ -28,10 +28,6 @@ export default class NewTaskForm extends Component {
     this.setState({
       label: '',
     })
-
-    setTimeout(() => {
-      this.props.onFilterChange(this.props.tab)
-    }, 100)
   }
 
   render() {
