@@ -18,7 +18,6 @@ export default class App extends Component {
     super(props)
     this.state = {
       todoData: [],
-      filteredTasks: [],
       initialized: false,
       selectedTab: 'all',
     }
@@ -71,24 +70,6 @@ export default class App extends Component {
     this.setState({
       selectedTab: tab,
     })
-    switch (tab) {
-      case 'completed':
-        this.setState({
-          filteredTasks: this.state.todoData.filter((task) => task.done),
-        })
-        break
-      case 'active':
-        this.setState({
-          filteredTasks: this.state.todoData.filter((task) => !task.done),
-        })
-        break
-
-      default:
-        this.setState({
-          filteredTasks: this.state.todoData,
-        })
-        break
-    }
   }
 
   addItem = (text) => {
@@ -128,18 +109,21 @@ export default class App extends Component {
   }
 
   render() {
+    let filteredTasks = this.state.todoData
+    if (this.state.selectedTab === 'completed') {
+      filteredTasks = this.state.todoData.filter((task) => task.done)
+    } else if (this.state.selectedTab === 'active') {
+      filteredTasks = this.state.todoData.filter((task) => !task.done)
+    }
+
     const doneCount = this.state.todoData.filter((el) => el.done).length
     const todoCount = this.state.todoData.length - doneCount
+
     return (
       <>
         <AppHeader />
-        <NewTaskForm onItemAdded={this.addItem} onFilterChange={this.onFilterChange} />
-        <TaskList
-          filters={this.state.filteredTasks}
-          todos={this.state.todoData}
-          onDeleted={this.deleteItem}
-          onToggleDone={this.onToggleDone}
-        />
+        <NewTaskForm onItemAdded={this.addItem} onFilterChange={this.onFilterChange} tab={this.state.selectedTab} />
+        <TaskList todos={filteredTasks} onDeleted={this.deleteItem} onToggleDone={this.onToggleDone} />
         <Footer
           tab={this.state.selectedTab}
           todos={this.state.todoData}

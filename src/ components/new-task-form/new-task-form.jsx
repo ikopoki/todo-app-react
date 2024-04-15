@@ -12,7 +12,6 @@ export default class NewTaskForm extends Component {
   }
 
   onLabelChange = (e) => {
-    this.props.onFilterChange()
     this.setState({
       label: e.target.value,
     })
@@ -31,7 +30,7 @@ export default class NewTaskForm extends Component {
     })
 
     setTimeout(() => {
-      this.props.onFilterChange()
+      this.props.onFilterChange(this.props.tab)
     }, 100)
   }
 
@@ -48,3 +47,5 @@ export default class NewTaskForm extends Component {
     )
   }
 }
+
+// 52
