@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable prefer-const */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable class-methods-use-this */
@@ -18,14 +19,9 @@ export default class App extends Component {
     super(props)
     this.state = {
       todoData: [],
-      initialized: false,
       selectedTab: 'all',
-    }
-  }
-
-  componentDidMount() {
-    if (!this.state.initialized) {
-      this.setState({ initialized: true })
+      minutes: 0,
+      seconds: 0,
     }
   }
 
@@ -99,6 +95,13 @@ export default class App extends Component {
     })
   }
 
+  onTimerSubmit = (min, sec) => {
+    this.setState({
+      minutes: min,
+      seconds: sec,
+    })
+  }
+
   render() {
     let filteredTasks = this.state.todoData
     if (this.state.selectedTab === 'completed') {
@@ -109,12 +112,22 @@ export default class App extends Component {
 
     const doneCount = this.state.todoData.filter((el) => el.done).length
     const todoCount = this.state.todoData.length - doneCount
-
     return (
       <>
         <AppHeader />
-        <NewTaskForm onItemAdded={this.addItem} onFilterChange={this.onFilterChange} tab={this.state.selectedTab} />
-        <TaskList todos={filteredTasks} onDeleted={this.deleteItem} onToggleDone={this.onToggleDone} />
+        <NewTaskForm
+          onItemAdded={this.addItem}
+          onFilterChange={this.onFilterChange}
+          tab={this.state.selectedTab}
+          onTimerSubmit={this.onTimerSubmit}
+        />
+        <TaskList
+          todos={filteredTasks}
+          onDeleted={this.deleteItem}
+          onToggleDone={this.onToggleDone}
+          min={this.state.minutes}
+          sec={this.state.seconds}
+        />
         <Footer
           tab={this.state.selectedTab}
           todos={this.state.todoData}
