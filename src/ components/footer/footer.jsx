@@ -1,6 +1,4 @@
-/* eslint-disable react/require-default-props */
 /* eslint-disable react/prop-types */
-// eslint-disable-next-line import/no-extraneous-dependencies
 import TasksFilter from '../tasks-filter/tasks-filter'
 import './footer.css'
 

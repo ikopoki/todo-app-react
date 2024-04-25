@@ -4,98 +4,87 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/prop-types */
 import { formatDistanceToNow } from 'date-fns'
-import { Component } from 'react'
+import { useState, useEffect } from 'react'
 
-export default class Task extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      isEditing: false,
-      editedDescription: '',
-      min: this.props.min,
-      sec: this.props.sec,
+function Task({ min, sec, label, onDeleted, onToggleDone, done, created }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedDescription, setEditedDescription] = useState('')
+  const [minutes, setMinutes] = useState(min)
+  const [seconds, setSeconds] = useState(sec)
+  const [isPlaying, setIsPlaying] = useState(true)
+
+  let timer
+
+  useEffect(() => {
+    if (isPlaying) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      timer = setInterval(() => {
+        setSeconds((prev) => prev + 1)
+        if (seconds > 59) {
+          setSeconds(0)
+          setMinutes((prev) => prev + 1)
+        }
+      }, 1000)
+    } else {
+      clearInterval(timer)
     }
+    return () => {
+      clearInterval(timer)
+    }
+  }, [isPlaying, seconds])
+
+  const handleEdit = () => {
+    setIsEditing(true)
   }
 
-  componentDidMount() {
-    this.timer = setInterval(() => {
-      let { min, sec } = this.state
-      sec++
-      if (sec === 60) {
-        sec = 0
-        min++
-      }
-      this.setState({ sec, min })
-    }, 1000)
+  const handleInputChange = (e) => {
+    setEditedDescription(e.target.value)
   }
 
-  componentWillUnmount() {
-    clearInterval(this.timer)
-  }
-
-  handleEdit = () => {
-    this.setState({ isEditing: true })
-  }
-
-  handleInputChange = (e) => {
-    this.setState({ editedDescription: e.target.value })
-  }
-
-  handleEnterPress = (e) => {
+  const handleEnterPress = (e) => {
     if (e.key === 'Enter') {
-      this.setState({ isEditing: false })
+      setIsEditing(false)
     }
   }
 
-  play = () => {
-    this.timer = setInterval(() => {
-      let { min, sec } = this.state
-      sec++
-      if (sec === 60) {
-        sec = 0
-        min++
-      }
-      this.setState({ sec, min })
-    }, 1000)
+  const play = () => {
+    setIsPlaying(true)
   }
 
-  stop = () => {
-    clearInterval(this.timer)
+  const stop = () => {
+    setIsPlaying(false)
   }
 
-  render() {
-    const { label, onDeleted, onToggleDone, done, created } = this.props
-    const { isEditing, editedDescription, min, sec } = this.state
+  const timeAgo = formatDistanceToNow(new Date(created), { addSuffix: true })
 
-    const timeAgo = formatDistanceToNow(new Date(created), { addSuffix: true })
-
-    return (
-      // eslint-disable-next-line no-nested-ternary
-      <li className={done ? 'completed' : isEditing ? 'editing' : 'active'}>
-        <div className="view">
-          <input className="toggle" type="checkbox" onClick={onToggleDone} />
-          <label>
-            <span className="title">{editedDescription || label}</span>
-            <span className="description">
-              <button className="icon icon-play" type="button" onClick={this.play} />
-              <button className="icon icon-pause" type="button" onClick={this.stop} />
-              {min}:{sec}
-            </span>
-            <span className="description">created {timeAgo}</span>
-          </label>
-          <button className="icon icon-edit" onClick={this.handleEdit} type="button" />
-          <button className="icon icon-destroy" onClick={onDeleted} type="button" />
-        </div>
-        {isEditing && (
-          <input
-            type="text"
-            className="edit"
-            defaultValue={editedDescription}
-            onChange={this.handleInputChange}
-            onKeyPress={this.handleEnterPress}
-          />
-        )}
-      </li>
-    )
-  }
+  return (
+    // eslint-disable-next-line no-nested-ternary
+    <li className={done ? 'completed' : isEditing ? 'editing' : 'active'}>
+      <div className="view">
+        <input className="toggle" type="checkbox" onClick={onToggleDone} />
+        <label>
+          <span className="title">{editedDescription || label}</span>
+          <span className="description">
+            <button className="icon icon-play" type="button" onClick={play} />
+            <button className="icon icon-pause" type="button" onClick={stop} />
+            {minutes}:{seconds}
+          </span>
+          <span className="description">created {timeAgo}</span>
+        </label>
+        <button className="icon icon-edit" onClick={handleEdit} type="button" />
+        <button className="icon icon-destroy" onClick={onDeleted} type="button" />
+      </div>
+      {isEditing && (
+        <input
+          type="text"
+          className="edit"
+          defaultValue={editedDescription}
+          onChange={handleInputChange}
+          onKeyPress={handleEnterPress}
+        />
+      )}
+    </li>
+  )
 }
+
+export default Task
