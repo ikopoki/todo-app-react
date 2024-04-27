@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/function-component-definition */
 
 import React, { useState } from 'react'
@@ -24,7 +24,13 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onItemAdded, onTimerSubmit })
   }
 
   const onSecondChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSec(parseInt(e.target.value, 10))
+    const secondsInput = (parseInt(e.target.value, 10))
+    if(secondsInput >= 60) {
+      setMin(min + Math.floor(secondsInput / 60))
+      setSec(secondsInput % 60)
+    } else {
+      setSec(secondsInput)
+    }
   }
 
   // eslint-disable-next-line consistent-return
@@ -39,7 +45,6 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onItemAdded, onTimerSubmit })
 
     onItemAdded(label)
     setLabel('')
-
     onTimerSubmit(min, sec)
     setMin(0)
     setSec(0)

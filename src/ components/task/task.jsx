@@ -6,32 +6,42 @@
 import { formatDistanceToNow } from 'date-fns'
 import { useState, useEffect } from 'react'
 
-function Task({ min, sec, label, onDeleted, onToggleDone, done, created }) {
+function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onTimerFilter }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedDescription, setEditedDescription] = useState('')
   const [minutes, setMinutes] = useState(min)
   const [seconds, setSeconds] = useState(sec)
   const [isPlaying, setIsPlaying] = useState(true)
-
+  const [isChecked, setIsChecked] = useState(done)
+  console.log(min)
   let timer
 
   useEffect(() => {
     if (isPlaying) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       timer = setInterval(() => {
-        setSeconds((prev) => prev + 1)
-        if (seconds > 59) {
-          setSeconds(0)
-          setMinutes((prev) => prev + 1)
+        setSeconds(seconds - 1)
+        if (seconds <= 0) {
+          setSeconds(59)
+          setMinutes((prev) => prev - 1)
         }
       }, 1000)
     } else {
       clearInterval(timer)
     }
-    return () => {
+    if (minutes === 0 && seconds === 0) {
+      clearInterval(timer)
+      setMinutes(0)
+      setSeconds(0)
+    }
+    if (done) {
       clearInterval(timer)
     }
-  }, [isPlaying, seconds])
+    return () => {
+      onTimerFilter(id, minutes, seconds)
+      clearInterval(timer)
+    }
+  }, [isPlaying, done, minutes, seconds])
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -61,7 +71,13 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created }) {
     // eslint-disable-next-line no-nested-ternary
     <li className={done ? 'completed' : isEditing ? 'editing' : 'active'}>
       <div className="view">
-        <input className="toggle" type="checkbox" onClick={onToggleDone} />
+        <input
+          className="toggle"
+          type="checkbox"
+          checked={isChecked}
+          onClick={onToggleDone}
+          onChange={() => setIsChecked(!isChecked)}
+        />
         <label>
           <span className="title">{editedDescription || label}</span>
           <span className="description">
