@@ -56,7 +56,7 @@
   },
   "lint-staged": {
     "*.ts": "npx tsc --noEmit",
-    "*.{js,jsx,ts,tsx}": "npm run lint",
-    "*.{js,jsx,ts,tsx,html,css}": "npm run format"
+    "*.{js,jsx,ts}": "npm run lint",
+    "*.{js,jsx,ts,html,css}": "npm run format"
   }
 }

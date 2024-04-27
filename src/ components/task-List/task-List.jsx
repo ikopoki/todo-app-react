@@ -3,9 +3,18 @@
 import Task from '../task/task'
 import './task-List.css'
 
-const taskList = ({ todos, onDeleted, onToggleDone }) => {
+const taskList = ({ todos, onDeleted, onToggleDone, onTimerFilter }) => {
   const elements = todos.map((item) => (
-    <Task {...item} key={item.id} onDeleted={() => onDeleted(item.id)} onToggleDone={() => onToggleDone(item.id)} />
+    <Task
+      {...item}
+      key={item.id}
+      id={item.id}
+      onDeleted={() => onDeleted(item.id)}
+      onToggleDone={() => onToggleDone(item.id)}
+      min={item.min}
+      sec={item.sec}
+      onTimerFilter={onTimerFilter}
+    />
   ))
   return <ul className="todo-list">{elements}</ul>
 }

@@ -1,8 +1,5 @@
-/* eslint-disable prefer-const */
-/* eslint-disable react/no-access-state-in-setstate */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable react/destructuring-assignment */
-import { Component } from 'react'
+/* eslint-disable eqeqeq */
+import { useState } from 'react'
 
 import { createRoot } from 'react-dom/client'
 import { format } from 'date-fns'
@@ -13,118 +10,103 @@ import TaskList from './ components/task-List'
 import Footer from './ components/footer'
 import './index.css'
 
-export default class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      todoData: [],
-      initialized: false,
-      selectedTab: 'all',
-    }
+export default function App() {
+  const [todoData, setTodoData] = useState([])
+  const [selectedTab, setSelectedTab] = useState('all')
+  const [minutes, setMinutes] = useState(0)
+  const [seconds, setSeconds] = useState(0)
+
+  const onTimerSubmit = (min, sec) => {
+    setMinutes(min)
+    setSeconds(sec)
   }
 
-  componentDidMount() {
-    if (!this.state.initialized) {
-      this.setState({ initialized: true })
-    }
-  }
+  const maxId = () => Math.random().toString(36).slice(2)
 
-  // eslint-disable-next-line react/sort-comp
-  maxId = () => Math.random().toString(36).slice(2)
+  const deleteItem = (id) => {
+    setTodoData((prev) => {
+      const idx = prev.findIndex((el) => el.id == id)
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      // eslint-disable-next-line
-      const idx = todoData.findIndex((el) => el.id == id)
-
-      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)]
-
-      return {
-        todoData: newArray,
-      }
+      return [...prev.slice(0, idx), ...prev.slice(idx + 1)]
     })
   }
 
-  deleteAllItem = () => {
-    this.setState(({ todoData }) => {
-      const newArray = []
-      todoData.forEach((el) => {
-        if (!el.done) {
-          newArray.push(el)
-        }
-      })
-
-      return {
-        todoData: newArray,
-      }
-    })
+  const deleteAllItem = () => {
+    setTodoData((prev) => prev.filter((el) => !el.done))
   }
 
-  onFilterChange = (tab) => {
-    this.setState({
-      selectedTab: tab,
-    })
+  const onFilterChange = (tab) => {
+    setSelectedTab(tab)
   }
 
-  addItem = (text) => {
+  const addItem = (text) => {
     const newItem = {
       label: text,
       done: false,
-      id: this.maxId(),
+      id: maxId(),
       created: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+      min: minutes,
+      sec: seconds,
     }
 
-    this.setState(({ todoData }) => {
-      const newArray = [...todoData, newItem]
+    setTodoData((prev) => [...prev, newItem])
+  }
 
-      return {
-        todoData: newArray,
-      }
+  const onTimerFilter = (id, min, sec) => {
+    setTodoData((prev) => {
+      const idx = prev.findIndex((el) => el.id == id)
+
+      const oldItem = prev[idx]
+      const newItem = { ...oldItem, min, sec }
+      return [...prev.slice(0, idx), newItem, ...prev.slice(idx + 1)]
     })
   }
 
-  onToggleDone = (id) => {
-    this.setState(({ todoData }) => {
-      // eslint-disable-next-line eqeqeq
-      const idx = todoData.findIndex((el) => el.id == id)
+  const onToggleDone = (id) => {
+    setTodoData((prev) => {
+      const idx = prev.findIndex((el) => el.id == id)
 
-      const oldItem = todoData[idx]
+      const oldItem = prev[idx]
       const newItem = { ...oldItem, done: !oldItem.done }
 
-      const newArray = todoData.toSpliced(idx, 1, newItem)
-
-      return {
-        todoData: newArray,
-      }
+      return [...prev.slice(0, idx), newItem, ...prev.slice(idx + 1)]
     })
   }
 
-  render() {
-    let filteredTasks = this.state.todoData
-    if (this.state.selectedTab === 'completed') {
-      filteredTasks = this.state.todoData.filter((task) => task.done)
-    } else if (this.state.selectedTab === 'active') {
-      filteredTasks = this.state.todoData.filter((task) => !task.done)
-    }
-
-    const doneCount = this.state.todoData.filter((el) => el.done).length
-    const todoCount = this.state.todoData.length - doneCount
-
-    return (
-      <>
-        <AppHeader />
-        <NewTaskForm onItemAdded={this.addItem} onFilterChange={this.onFilterChange} tab={this.state.selectedTab} />
-        <TaskList todos={filteredTasks} onDeleted={this.deleteItem} onToggleDone={this.onToggleDone} />
-        <Footer
-          tab={this.state.selectedTab}
-          todos={this.state.todoData}
-          onDeletedAll={this.deleteAllItem}
-          toDo={todoCount}
-          onFilterChange={this.onFilterChange}
-        />
-      </>
-    )
+  let filteredTasks = todoData
+  if (selectedTab === 'completed') {
+    filteredTasks = todoData.filter((task) => task.done)
+  } else if (selectedTab === 'active') {
+    filteredTasks = todoData.filter((task) => !task.done)
   }
+
+  const doneCount = todoData.filter((el) => el.done).length
+  const todoCount = todoData.length - doneCount
+
+  return (
+    <>
+      <AppHeader />
+      <NewTaskForm
+        onItemAdded={addItem}
+        onFilterChange={onFilterChange}
+        tab={selectedTab}
+        onTimerSubmit={onTimerSubmit}
+      />
+      <TaskList
+        todos={filteredTasks}
+        onDeleted={deleteItem}
+        onToggleDone={onToggleDone}
+        onTimerFilter={onTimerFilter}
+      />
+      <Footer
+        tab={selectedTab}
+        todos={todoData}
+        onDeletedAll={deleteAllItem}
+        toDo={todoCount}
+        onFilterChange={onFilterChange}
+      />
+    </>
+  )
 }
 
 const rootHTML = document.getElementById('root')
