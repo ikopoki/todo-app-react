@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/prop-types */
 import { formatDistanceToNow } from 'date-fns'
@@ -8,9 +9,10 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onT
   const [editedDescription, setEditedDescription] = useState('')
   const [minutes, setMinutes] = useState(min)
   const [seconds, setSeconds] = useState(sec)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
   const [isChecked, setIsChecked] = useState(done)
-  const mountTimerRef = useRef(Date.now())
+  const mountTimeRef = useRef(Date.now())
+  const unmountTimeRef = useRef(null)
 
   let timer
 
@@ -18,30 +20,43 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onT
     if (isPlaying) {
       onTimerFilter(id, minutes, seconds)
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      timer = setInterval(() => {
+      timer = setTimeout(() => {
         setSeconds(seconds - 1)
         if (seconds <= 0) {
           setSeconds(59)
           setMinutes((prev) => prev - 1)
         }
       }, 1000)
-    } else {
-      clearInterval(timer)
-    }
+    } else clearTimeout(timer)
+
     if (minutes === 0 && seconds === 0) {
-      clearInterval(timer)
+      clearTimeout(timer)
       setMinutes(0)
       setSeconds(0)
     }
-    if (done) {
-      clearInterval(timer)
-    }
+
+    if (done) clearTimeout(timer)
+
     return () => {
+      unmountTimeRef.current = Date.now()
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      unmountTimer(id, minutes, seconds, mountTimerRef.current)
-      clearInterval(timer)
+      unmountTimer(id, minutes, seconds, mountTimeRef.current, unmountTimeRef.current)
     }
   }, [isPlaying, done, minutes, seconds])
+
+  useEffect(() => {
+    if (unmountTimeRef.current !== null) {
+      const elapsedTime = unmountTimeRef.current - mountTimeRef.current
+      setMinutes((prev) => {
+        const newMinutes = prev - Math.floor(elapsedTime / 60000)
+        return newMinutes < 0 ? 0 : newMinutes
+      })
+      setSeconds((prev) => {
+        const newSeconds = prev - Math.floor((elapsedTime % 60000) / 1000)
+        return newSeconds < 0 ? 0 : newSeconds
+      })
+    }
+  }, [unmountTimeRef, mountTimeRef])
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -83,7 +98,7 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onT
           <span className="description">
             <button className="icon icon-play" type="button" onClick={play} />
             <button className="icon icon-pause" type="button" onClick={stop} />
-            {minutes}:{seconds}
+            {minutes < 10 ? '0' + minutes : minutes}:{seconds < 10 ? '0' + seconds : seconds}
           </span>
           <span className="description">created {timeAgo}</span>
         </label>
@@ -94,7 +109,7 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onT
         <input
           type="text"
           className="edit"
-          defaultValue={editedDescription}
+          defaultValue={label}
           onChange={handleInputChange}
           onKeyPress={handleEnterPress}
         />

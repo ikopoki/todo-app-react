@@ -66,10 +66,10 @@ export default function App() {
     })
   }
 
-  const unmountTimer = (id, prevMinutes, prevSeconds, mountTime) => {
+  const unmountTimer = (id, prevMinutes, prevSeconds, mountTime, unmountTime) => {
     setTodoData((prev) => {
       const idx = prev.findIndex((el) => el.id === id)
-      const elapsedTime = Date.now() - mountTime
+      const elapsedTime = unmountTime - mountTime
 
       const newMinutes = prevMinutes - Math.floor(elapsedTime / 60000)
       const newSeconds = prevSeconds - Math.floor((elapsedTime % 60000) / 1000)
