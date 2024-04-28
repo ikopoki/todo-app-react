@@ -6,11 +6,10 @@ import React, { useState } from 'react'
 import './new-task-form.css'
 
 interface NewTaskFormProps {
-  onItemAdded: (label: string) => void
-  onTimerSubmit: (min: number, sec: number) => void
+  onItemAdded: ({label, minutes, seconds }: {label: string, minutes: number, seconds: number}) => void
 }
 
-const NewTaskForm: React.FC<NewTaskFormProps> = ({ onItemAdded, onTimerSubmit }) => {
+const NewTaskForm: React.FC<NewTaskFormProps> = ({ onItemAdded }) => {
   const [label, setLabel] = useState<string>('')
   const [min, setMin] = useState<number>(0)
   const [sec, setSec] = useState<number>(0)
@@ -43,9 +42,8 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onItemAdded, onTimerSubmit })
       return null
     }
 
-    onItemAdded(label)
+    onItemAdded({label, minutes: min,seconds: sec})
     setLabel('')
-    onTimerSubmit(min, sec)
     setMin(0)
     setSec(0)
   }

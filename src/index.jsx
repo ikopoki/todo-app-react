@@ -13,13 +13,6 @@ import './index.css'
 export default function App() {
   const [todoData, setTodoData] = useState([])
   const [selectedTab, setSelectedTab] = useState('all')
-  const [minutes, setMinutes] = useState(0)
-  const [seconds, setSeconds] = useState(0)
-
-  const onTimerSubmit = (min, sec) => {
-    setMinutes(min)
-    setSeconds(sec)
-  }
 
   const maxId = () => Math.random().toString(36).slice(2)
 
@@ -39,9 +32,9 @@ export default function App() {
     setSelectedTab(tab)
   }
 
-  const addItem = (text) => {
+  const addItem = ({ label, minutes, seconds }) => {
     const newItem = {
-      label: text,
+      label,
       done: false,
       id: maxId(),
       created: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
@@ -73,6 +66,24 @@ export default function App() {
     })
   }
 
+  const unmountTimer = (id, prevMinutes, prevSeconds, mountTime) => {
+    setTodoData((prev) => {
+      const idx = prev.findIndex((el) => el.id === id)
+      const elapsedTime = Date.now() - mountTime
+
+      const newMinutes = prevMinutes - Math.floor(elapsedTime / 60000)
+      const newSeconds = prevSeconds - Math.floor((elapsedTime % 60000) / 1000)
+
+      const newItem = {
+        ...prev[idx],
+        min: newMinutes < 0 ? 0 : newMinutes,
+        sec: newSeconds < 0 ? 0 : newSeconds,
+      }
+
+      return [...prev.slice(0, idx), newItem, ...prev.slice(idx + 1)]
+    })
+  }
+
   let filteredTasks = todoData
   if (selectedTab === 'completed') {
     filteredTasks = todoData.filter((task) => task.done)
@@ -86,17 +97,13 @@ export default function App() {
   return (
     <>
       <AppHeader />
-      <NewTaskForm
-        onItemAdded={addItem}
-        onFilterChange={onFilterChange}
-        tab={selectedTab}
-        onTimerSubmit={onTimerSubmit}
-      />
+      <NewTaskForm onItemAdded={addItem} onFilterChange={onFilterChange} tab={selectedTab} />
       <TaskList
         todos={filteredTasks}
         onDeleted={deleteItem}
         onToggleDone={onToggleDone}
         onTimerFilter={onTimerFilter}
+        unmountTimer={unmountTimer}
       />
       <Footer
         tab={selectedTab}

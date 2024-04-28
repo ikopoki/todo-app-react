@@ -1,23 +1,22 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable react/prefer-stateless-function */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/prop-types */
 import { formatDistanceToNow } from 'date-fns'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onTimerFilter }) {
+function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onTimerFilter, unmountTimer }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedDescription, setEditedDescription] = useState('')
   const [minutes, setMinutes] = useState(min)
   const [seconds, setSeconds] = useState(sec)
-  const [isPlaying, setIsPlaying] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [isChecked, setIsChecked] = useState(done)
-  console.log(min)
+  const mountTimerRef = useRef(Date.now())
+
   let timer
 
   useEffect(() => {
     if (isPlaying) {
+      onTimerFilter(id, minutes, seconds)
       // eslint-disable-next-line react-hooks/exhaustive-deps
       timer = setInterval(() => {
         setSeconds(seconds - 1)
@@ -38,7 +37,8 @@ function Task({ min, sec, label, onDeleted, onToggleDone, done, created, id, onT
       clearInterval(timer)
     }
     return () => {
-      onTimerFilter(id, minutes, seconds)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      unmountTimer(id, minutes, seconds, mountTimerRef.current)
       clearInterval(timer)
     }
   }, [isPlaying, done, minutes, seconds])
