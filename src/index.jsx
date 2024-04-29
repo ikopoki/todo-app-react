@@ -1,5 +1,7 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable no-use-before-define */
 /* eslint-disable eqeqeq */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { createRoot } from 'react-dom/client'
 import { format } from 'date-fns'
@@ -40,19 +42,12 @@ export default function App() {
       created: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
       min: minutes,
       sec: seconds,
+      timer: undefined,
+      formatTime: `${minutes}:${seconds}`,
+      totalSeconds: minutes * 60 + seconds,
     }
 
     setTodoData((prev) => [...prev, newItem])
-  }
-
-  const onTimerFilter = (id, min, sec) => {
-    setTodoData((prev) => {
-      const idx = prev.findIndex((el) => el.id == id)
-
-      const oldItem = prev[idx]
-      const newItem = { ...oldItem, min, sec }
-      return [...prev.slice(0, idx), newItem, ...prev.slice(idx + 1)]
-    })
   }
 
   const onToggleDone = (id) => {
@@ -66,23 +61,65 @@ export default function App() {
     })
   }
 
-  const unmountTimer = (id, prevMinutes, prevSeconds, mountTime, unmountTime) => {
-    setTodoData((prev) => {
-      const idx = prev.findIndex((el) => el.id === id)
-      const elapsedTime = unmountTime - mountTime
+  function startTimer(id) {
+    if (!todoData.find((el) => el.id === id).timer) {
+      const newTimer = setInterval(() => {
+        setTodoData((prev) => prev.map((el) => (el.id === id ? updateTaskTimer(el) : el)))
+      }, 1000)
 
-      const newMinutes = prevMinutes - Math.floor(elapsedTime / 60000)
-      const newSeconds = prevSeconds - Math.floor((elapsedTime % 60000) / 1000)
+      setTodoData((prev) => prev.map((el) => (el.id === id ? { ...el, timer: newTimer } : el)))
+    }
+  }
 
-      const newItem = {
-        ...prev[idx],
-        min: newMinutes < 0 ? 0 : newMinutes,
-        sec: newSeconds < 0 ? 0 : newSeconds,
+  function stopTimer(id) {
+    const task = todoData.find((el) => el.id === id)
+    if (task && task.timer) {
+      clearInterval(task.timer)
+      setTodoData((prev) => prev.map((el) => (el.id === id ? { ...el, timer: undefined } : el)))
+    }
+  }
+
+  function stopAllTimers() {
+    todoData.forEach((el) => {
+      if (el.timer) {
+        clearInterval(el.timer)
       }
-
-      return [...prev.slice(0, idx), newItem, ...prev.slice(idx + 1)]
     })
   }
+
+  const padZero = (value) => (String(value).length < 2 ? `0${value}` : value)
+
+  const updateTaskTimer = (el) => {
+    if (el.totalSeconds <= 0) {
+      stopTimer(el.id)
+      return { ...el, totalSeconds: 0 }
+    }
+
+    const minutes = Math.floor(el.totalSeconds / 60)
+    const seconds = el.totalSeconds % 60
+    const formatTime = `${padZero(minutes)}:${padZero(seconds)}`
+
+    return {
+      ...el,
+      formatTime,
+      totalSeconds: el.totalSeconds - 1,
+    }
+  }
+
+  useEffect(() => {
+    todoData.forEach((task) => {
+      if (task.done && task.timer) {
+        stopTimer(task.id)
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todoData])
+
+  // eslint-disable-next-line arrow-body-style
+  useEffect(() => {
+    return () => stopAllTimers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   let filteredTasks = todoData
   if (selectedTab === 'completed') {
@@ -102,8 +139,8 @@ export default function App() {
         todos={filteredTasks}
         onDeleted={deleteItem}
         onToggleDone={onToggleDone}
-        onTimerFilter={onTimerFilter}
-        unmountTimer={unmountTimer}
+        startTimer={startTimer}
+        stopTimer={stopTimer}
       />
       <Footer
         tab={selectedTab}
